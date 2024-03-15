@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import shop.mtcoding.blog._core.errors.exception.Exception401;
 
 
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class UserController {
     private final HttpSession session;
 
     @PostMapping("/user/update")
-    public String update(UserRequest.UpdateDTO reqDTO){
+    public String update(UserRequest.UpdateDTO reqDTO) {
         User sessionUser = (User) session.getAttribute("sessionUser");
         User newSessionUser = userRepository.updateById(sessionUser.getId(), reqDTO.getPassword(), reqDTO.getEmail());
         session.setAttribute("sessionUser", newSessionUser);
@@ -24,14 +25,14 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public String join(UserRequest.JoinDTO reqDTO){
+    public String join(UserRequest.JoinDTO reqDTO) {
         userRepository.save(reqDTO.toEntity());
 
         return "redirect:/";
     }
 
     @PostMapping("/login")
-    public String login(UserRequest.LoginDTO reqDTO){
+    public String login(UserRequest.LoginDTO reqDTO) {
         User sessionUser = userRepository.findByUsernameAndPassword(reqDTO.getUsername(), reqDTO.getPassword());
 
         session.setAttribute("sessionUser", sessionUser);
@@ -51,6 +52,9 @@ public class UserController {
     @GetMapping("/user/update-form")
     public String updateForm(HttpServletRequest request) {
         User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            throw new Exception401("인증되지 않았어요. 로그인해주세요.");
+        }
 
         User user = userRepository.findById(sessionUser.getId());
         request.setAttribute("user", user);

@@ -19,6 +19,12 @@ public class BoardController {
     private final BoardRepository boardRepository;
     private final HttpSession session;
 
+    @GetMapping("/hello")
+    public String hello(HttpServletRequest request) {
+        request.setAttribute("msg", "유저네임의 길이가 길어요");
+        return "err/400";
+    }
+
     @PostMapping("/board/save")
     public String save(BoardRequest.SaveDTO reqDTO) {
         User sessionUser = (User) session.getAttribute("sessionUser");
